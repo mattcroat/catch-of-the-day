@@ -33,7 +33,7 @@ render(<StorePicker />, document.querySelector('#main'));
 We don't touch the DOM, only when we mount the page
 
 ### index.html
-```jsx
+```html
 <!doctype html>
 <html lang="en">
 
