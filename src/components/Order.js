@@ -1,4 +1,5 @@
-import React, { Fragment } from 'react';
+// React core
+import React from 'react';
 
 class Order extends React.Component {
   render() {

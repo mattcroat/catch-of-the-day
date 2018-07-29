@@ -86,7 +86,7 @@ class StorePicker extends React.Component {
 export default StorePicker;
 ```
 
-# Writing HTML With JSX
+# Writing HTML with JSX
 
 JSX is a mix of JavaScript and HTML:
 + You can't use regular HTML attributes
@@ -162,7 +162,7 @@ class App extends React.Component {
 export default App;
 ```
 
-# Passing Dynamic Data With props
+# Passing Dynamic Data with props
 
 Props:
 + Way to get data into a component
@@ -290,4 +290,625 @@ const Header = ({ tagline, age }) => (
 );
 
 export default Header;
+```
+
+# Routing with React Router
+
++ Switch tries each Route until it find one or returns not found
++ When the path exactly matches then it renders the component
++ We have to render out the Router to our mounting point
+
+### Router.js
+```jsx
+// React core
+import React from 'react';
+// Router
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+// Components
+import StorePicker from './StorePicker';
+import App from './App';
+import NotFound from './NotFound';
+
+const Router = () => (
+  <BrowserRouter>
+    <Switch>
+      <Route exact path="/" component={StorePicker} />
+      <Route exact path="/store/:storeId" component={App} />
+      <Route component={NotFound} />
+    </Switch>
+  </BrowserRouter>
+);
+
+export default Router;
+```
+
+### index.js
+```jsx
+// React core
+import React from 'react';
+import { render } from 'react-dom';
+// Components
+import Router from './components/Router';
+import './css/style.css'
+
+// Render takes JSX and a mounting point
+render(<Router />, document.querySelector('#main'));
+```
+
+# Helper and Utility Functions
+
++ src/helpers.js any non React component, useful collection of helper functions
+
+```jsx
+// React core
+import React from 'react';
+// Helpers
+import { getFunName } from '../helpers';
+
+class StorePicker extends React.Component {
+  render() {
+    return (
+      <form className="store-selector">
+        <h2>Please Enter a Store</h2>
+        <input
+          type="text"
+          required
+          placholder="Store Name"
+          defaultValue={getFunName()}
+        />
+        <button type="submit">Visit Store -></button>
+      </form>
+    );
+  }
+}
+
+export default StorePicker;
+```
+
+# Events, Ref and this Binding
+
++ Events work the same as in JavaScript and are wrapped in SyntheticEvent for cross-browser compatability
++ They're done inline in React
++ There are two ways to handle inputs, refs that touch the DOM element and state that syncs the text of the input
++ Ref allows us to reference an actual DOM node on the page, it's going to surface the input on the component so that we can grab it
++ Any methods me add are not bound by default making it hard to reference so we need to bind them on our own
+
+
+Inline event
+```jsx
+// React core
+import React from 'react';
+// Helpers
+import { getFunName } from '../helpers';
+
+class StorePicker extends React.Component {
+  handleClick() {
+    alert('Hey! 👍');
+  }
+  
+  render() {
+    return (
+      <form className="store-selector">
+        <h2>Please Enter a Store</h2>
+
+        <button onClick={this.handleClick}>Click me!</button>
+        
+        <input
+          type="text"
+          required
+          placholder="Store Name"
+          defaultValue={getFunName()}
+        />
+        <button type="submit">Visit Store -></button>
+      </form>
+    );
+  }
+}
+
+export default StorePicker;
+```
+
+Binding this
+```jsx
+// React core
+import React from 'react';
+// Helpers
+import { getFunName } from '../helpers';
+
+class StorePicker extends React.Component {
+  // Input ref property
+  myInput = React.createRef();
+
+  // This allows us to bind this
+  goToStore = (event) => {
+    event.preventDefault();
+
+    console.log(this);
+  }
+  
+  render() {
+    return (
+      <form className="store-selector" onSubmit={this.goToStore}>
+        <h2>Please Enter a Store</h2>
+        <input
+          type="text"
+          ref={this.myInput}
+          required
+          placholder="Store Name"
+          defaultValue={getFunName()}
+        />
+        <button type="submit">Visit Store -></button>
+      </form>
+    );
+  }
+}
+
+export default StorePicker;
+```
+
+# Handling Events
+
+```jsx
+// React core
+import React from 'react';
+// Helpers
+import { getFunName } from '../helpers';
+
+class StorePicker extends React.Component {
+  // Input ref property
+  myInput = React.createRef();
+
+  // This allows us to bind this
+  goToStore = (event) => {
+    // 1. Stop the form from submitting
+    event.preventDefault();
+    // 2. Get text from input
+    const storeName = this.myInput.value.value;
+    // 3. Change page to /store/whatever-they-entered
+    this.props.history.push(`/store/${storeName}`);
+  }
+  
+  render() {
+    return (
+      <form className="store-selector" onSubmit={this.goToStore}>
+        <h2>Please Enter a Store</h2>
+        <input
+          type="text"
+          ref={this.myInput}
+          required
+          placholder="Store Name"
+          defaultValue={getFunName()}
+        />
+        <button type="submit">Visit Store -></button>
+      </form>
+    );
+  }
+}
+
+export default StorePicker;
+```
+
+# Understanding State
+
+What is state?
++ State is a object that holds data
++ Lives inside of a component
++ Stores all data from a component that it and some of it's children needs
++ Single source of truth
++ We don't need to pass entire state, only the piece which we wish to update
+
+Our goal is to pass <AddFishForm/> data to our state that lives in <App/> and update it but our <AddFishForm/> doesn't know about createFish() so we need to pass it down from <App/> using props.
+
+<AddFishForm/> is currently two levels deep.
+
+<App/>
+  ...
+  <Inventory/>
+    <AddFishForm/>
+
+### AddFishForm.js
+```jsx
+// Core react
+import React from 'react';
+
+class AddFishForm extends React.Component {
+  // Our values
+  nameRef = React.createRef();
+  priceRef = React.createRef();
+  statusRef = React.createRef();
+  descRef = React.createRef();
+  imageRef = React.createRef();
+
+  createFish = event => {
+    // 1. Stop the form from submitting
+    event.preventDefault();
+    // 2. Store our values in a object
+    const fish = {
+      name: this.nameRef.value.value,
+      price: parseFloat(this.priceRef.value.value),
+      status: this.statusRef.value.value,
+      desc: this.descRef.value.value,
+      image: this.imageRef.value.value
+    };
+    // 3. Pass the object to props
+    this.props.addFish(fish);
+    // 4. Refresh form
+    event.currentTarget.reset();
+  };
+
+  render() {
+    return (
+      <form className="fish-edit" onSubmit={this.createFish}>
+        <input name="name" ref={this.nameRef} type="text" placeholder="Name" />
+        <input
+          name="price"
+          ref={this.priceRef}
+          type="text"
+          placeholder="Price"
+        />
+        <select name="status" ref={this.statusRef}>
+          <option value="available">Fresh!</option>
+          <option value="unavailable">Sold out!</option>
+        </select>
+        <textarea name="desc" ref={this.descRef} placeholder="Desc" />
+        <input
+          name="image"
+          ref={this.imageRef}
+          type="text"
+          placeholder="Image"
+        />
+        <button type="submit">+ Add Fish</button>
+      </form>
+    );
+  }
+}
+
+export default AddFishForm;
+```
+
+We want to make addFish() available to <AddFishForm/> which is two levels lower in our React app. We're passing it down to <Inventory/> because <AddFishForm/> lives on it. Once we get back the data we can update our state.
+
+### App.js
+```jsx
+// React core
+import React from 'react';
+
+// Components
+import Header from './Header';
+import Order from './Order';
+import Inventory from './Inventory';
+
+class App extends React.Component {
+  // Our state
+  state = {
+    fishes: {},
+    order: {}
+  };
+
+  // Add fish
+  addFish = fish => {
+    // 1. Take a copy of existing state
+    const fishes = { ...this.state.fishes };
+    // 2. Add our new fishes to that fishes variable
+    fishes[`fish${Date.now()}`] = fish;
+    // 3. Set the new fishes object to state
+    this.setState({ fishes });
+  };
+
+  render() {
+    return (
+      <div className="catch-of-the-day">
+        <div className="menu">
+          <Header tagline="Fresh Seafood Market" />
+        </div>
+        <Order />
+        <Inventory addFish={this.addFish} />
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+addFish() doesn't live on <Inventory/>, it's passed down by props. It now has access to the function that lives two levels higher. We need to reference it using the keyword props.
+
+```jsx
+// Core react
+import React from 'react';
+// Components
+import AddFishForm from './AddFishForm';
+
+class Inventory extends React.Component {
+  render() {
+    return (
+      <div className="inventory">
+        <h2>Inventory</h2>
+        <AddFishForm addFish={this.props.addFish} />
+      </div>
+    );
+  }
+}
+
+export default Inventory;
+```
+
+# Loading data into State onClick
+
+Same as previously, we need to pass down a method using props and update state.
+
+### App.js
+```jsx
+// React core
+import React from 'react';
+// Components
+import Header from './Header';
+import Order from './Order';
+import Inventory from './Inventory';
+// Sample fishes
+import sampleFishes from '../sample-fishes';
+
+class App extends React.Component {
+  // Our state
+  state = {
+    fishes: {},
+    order: {}
+  };
+
+  // Add fish
+  addFish = fish => {
+    // 1. Take a copy of existing state
+    const fishes = { ...this.state.fishes };
+    // 2. Add our new fishes to that fishes variable
+    fishes[`fish${Date.now()}`] = fish;
+    // 3. Set the new fishes object to state
+    this.setState({ fishes });
+  };
+
+  // Load sample fishes
+  loadSampleFishes = () => {
+    this.setState({ fishes: sampleFishes });
+  };
+
+  render() {
+    return (
+      <div className="catch-of-the-day">
+        <div className="menu">
+          <Header tagline="Fresh Seafood Market" />
+        </div>
+        <Order />
+        <Inventory
+          addFish={this.addFish}
+          loadSampleFishes={this.loadSampleFishes}
+        />
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+### Inventory.js
+```jsx
+// Core react
+import React from 'react';
+// Components
+import AddFishForm from './AddFishForm';
+
+class Inventory extends React.Component {
+  render() {
+    return (
+      <div className="inventory">
+        <h2>Inventory</h2>
+        <AddFishForm addFish={this.props.addFish} />
+        <button onClick={this.props.loadSampleFishes}>
+          Load Sample Fishes
+        </button>
+      </div>
+    );
+  }
+}
+
+export default Inventory;
+```
+
+# Display State with JSX
+
+We're passing values from state as props to <Fish/>. This template is then used by <App/>.
+
+```jsx
+// React core
+import React from 'react';
+// Helpers
+import { formatPrice } from '../helpers';
+
+class Fish extends React.Component {
+  render() {
+    const { image, name, price, desc, status } = this.props.details;
+
+    return (
+      <li className="menu-fish">
+        <img src={image} alt={name} />
+        <h3 className="fish-name">{name}
+          <span className="price">{formatPrice(price)}</span>
+        </h3>
+        <p>{desc}</p>
+        <button>Add To Cart</button>
+      </li>
+    );
+  }
+}
+
+export default Fish;
+```
+
+We're looping over the fishes from state using Object.keys() because they're an object. For every entry we're outputing a <Fish/> component with a key and details.
+
+```jsx
+// React core
+import React from 'react';
+// Components
+import Header from './Header';
+import Order from './Order';
+import Inventory from './Inventory';
+import Fish from './Fish';
+// Sample fishes
+import sampleFishes from '../sample-fishes';
+
+class App extends React.Component {
+  // Our state
+  state = {
+    fishes: {},
+    order: {}
+  };
+
+  // Add fish
+  addFish = fish => {
+    // 1. Take a copy of existing state
+    const fishes = { ...this.state.fishes };
+    // 2. Add our new fishes to that fishes variable
+    fishes[`fish${Date.now()}`] = fish;
+    // 3. Set the new fishes object to state
+    this.setState({ fishes });
+  };
+
+  // Load sample fishes
+  loadSampleFishes = () => {
+    this.setState({ fishes: sampleFishes });
+  };
+
+  render() {
+    return (
+      <div className="catch-of-the-day">
+        <div className="menu">
+          <Header tagline="Fresh Seafood Market" />
+          <ul className="fishes">
+            {/* Loop over fishes */}
+            {Object.keys(this.state.fishes).map(key => (
+              <Fish key={key} details={this.state.fishes[key]} />
+            ))}
+          </ul>
+        </div>
+        <Order />
+        <Inventory
+          addFish={this.addFish}
+          loadSampleFishes={this.loadSampleFishes}
+        />
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+# Updating our Order State
+
+We pass order via props again that needs a key. If you need access to a key you have to pass it a second time with a prop named other than key. In this case index.
+
+```jsx
+// React core
+import React from 'react';
+// Components
+import Header from './Header';
+import Order from './Order';
+import Inventory from './Inventory';
+import Fish from './Fish';
+// Sample fishes
+import sampleFishes from '../sample-fishes';
+
+class App extends React.Component {
+  // Our state
+  state = {
+    fishes: {},
+    order: {}
+  };
+
+  // Add fish
+  addFish = fish => {
+    // 1. Take a copy of existing state
+    const fishes = { ...this.state.fishes };
+    // 2. Add our new fishes to that fishes variable
+    fishes[`fish${Date.now()}`] = fish;
+    // 3. Set the new fishes object to state
+    this.setState({ fishes });
+  };
+
+  // Load sample fishes
+  loadSampleFishes = () => {
+    this.setState({ fishes: sampleFishes });
+  };
+
+  // Add order
+  addToOrder = key => {
+    // 1. Take a copy of state
+    const order = { ...this.state.order };
+    // 2. Either add to the order or update the number in our order
+    order[key] = order[key] + 1 || 1;
+    // 3. Call setState to update our state object
+    this.setState({ order });
+  };
+
+  render() {
+    return (
+      <div className="catch-of-the-day">
+        <div className="menu">
+          <Header tagline="Fresh Seafood Market" />
+          <ul className="fishes">
+            {/* Loop over fishes */}
+            {Object.keys(this.state.fishes).map(key => (
+              <Fish
+                key={key}
+                index={key}
+                details={this.state.fishes[key]}
+                addToOrder={this.addToOrder}
+              />
+            ))}
+          </ul>
+        </div>
+        <Order />
+        <Inventory
+          addFish={this.addFish}
+          loadSampleFishes={this.loadSampleFishes}
+        />
+      </div>
+    );
+  }
+}
+
+export default App;
+
+```
+
+Then we handle the click where the order gets added to state over props 👍
+
+```jsx
+// React core
+import React from 'react';
+// Helpers
+import { formatPrice } from '../helpers';
+
+class Fish extends React.Component {
+  render() {
+    const { image, name, price, desc, status } = this.props.details;
+    const isAvailable = status === 'available';
+
+    return (
+      <li className="menu-fish">
+        <img src={image} alt={name} />
+        <h3 className="fish-name">
+          {name}
+          <span className="price">{formatPrice(price)}</span>
+        </h3>
+        <p>{desc}</p>
+        <button disabled={!isAvailable} onClick={() => this.props.addToOrder(this.props.index)}>
+          {isAvailable ? 'Add To Order' : 'Sold out!'}
+        </button>
+      </li>
+    );
+  }
+}
+
+export default Fish;
 ```

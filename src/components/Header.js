@@ -1,5 +1,7 @@
+// React core
 import React from 'react';
 
+// Stateless function component
 const Header = props => (
   <header className="top">
     <h1>
