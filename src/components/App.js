@@ -7,6 +7,8 @@ import Inventory from './Inventory';
 import Fish from './Fish';
 // Sample fishes
 import sampleFishes from '../sample-fishes';
+// Firebase
+import base from '../base';
 
 class App extends React.Component {
   // Our state
@@ -14,6 +16,20 @@ class App extends React.Component {
     fishes: {},
     order: {}
   };
+
+  componentDidMount() {
+    // Firebase reference to a piece of data in the database
+    const { params } = this.props.match;
+    this.ref = base.syncState(`${params.storeId}/fishes`, {
+      context: this,
+      state: 'fishes'
+    });
+  }
+
+  componentWillUnmount() {
+    // When we leave the store we can remove the reference
+    base.removeBinding(this.ref);
+  }
 
   // Add fish
   addFish = fish => {
@@ -57,7 +73,7 @@ class App extends React.Component {
             ))}
           </ul>
         </div>
-        <Order />
+        <Order fishes={this.state.fishes} order={this.state.order} />
         <Inventory
           addFish={this.addFish}
           loadSampleFishes={this.loadSampleFishes}

@@ -912,3 +912,199 @@ class Fish extends React.Component {
 
 export default Fish;
 ```
+
+# Displaying Order State with JSX
+
+Pass fishes and order props down <Order/>
+
+### App.js
+```jsx
+// React core
+import React from 'react';
+// Components
+import Header from './Header';
+import Order from './Order';
+import Inventory from './Inventory';
+import Fish from './Fish';
+// Sample fishes
+import sampleFishes from '../sample-fishes';
+
+class App extends React.Component {
+  // Our state
+  state = {
+    fishes: {},
+    order: {}
+  };
+
+  // Add fish
+  addFish = fish => {
+    // 1. Take a copy of existing state
+    const fishes = { ...this.state.fishes };
+    // 2. Add our new fishes to that fishes variable
+    fishes[`fish${Date.now()}`] = fish;
+    // 3. Set the new fishes object to state
+    this.setState({ fishes });
+  };
+
+  // Load sample fishes
+  loadSampleFishes = () => {
+    this.setState({ fishes: sampleFishes });
+  };
+
+  // Add order
+  addToOrder = key => {
+    // 1. Take a copy of state
+    const order = { ...this.state.order };
+    // 2. Either add to the order or update the number in our order
+    order[key] = order[key] + 1 || 1;
+    // 3. Call setState to update our state object
+    this.setState({ order });
+  };
+
+  render() {
+    return (
+      <div className="catch-of-the-day">
+        <div className="menu">
+          <Header tagline="Fresh Seafood Market" />
+          <ul className="fishes">
+            {/* Loop over fishes */}
+            {Object.keys(this.state.fishes).map(key => (
+              <Fish
+                key={key}
+                index={key}
+                details={this.state.fishes[key]}
+                addToOrder={this.addToOrder}
+              />
+            ))}
+          </ul>
+        </div>
+        <Order fishes={this.state.fishes} order={this.state.order} />
+        <Inventory
+          addFish={this.addFish}
+          loadSampleFishes={this.loadSampleFishes}
+        />
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+Seperate render functions in a single component
++ Overloaded complex code
++ Doesn't make sense to make a seperate component
+
+Tally up the total of our actual order and loop over orderIds
+
+### Order.js
+```jsx
+// React core
+import React from 'react';
+// Helpers
+import { formatPrice } from '../helpers';
+
+class Order extends React.Component {
+  renderOrder = (key) => {
+    // Grab the fish
+    const fish = this.props.fishes[key];
+    // Amount of bought fish
+    const count = this.props.order[key];
+    // Is available
+    const isAvailable = fish.status === 'available';
+
+    if (!isAvailable) {
+      // If fish exist output name else say fish
+      return <li key={key}>Sorry {fish ? fish.name : 'fish'} is no longer available</li>;
+    }
+
+    return (
+      <li key={key}>
+        {count} lbs {fish.name} &nbsp;
+        {formatPrice(count * fish.price)}
+      </li>
+    );
+  }
+
+  render() {
+    // Array of all the orderIds
+    const orderIds = Object.keys(this.props.order);
+    // Total of how much each of them cost
+    const total = orderIds.reduce((prevTotal, key) => {
+      // Grab the fish
+      const fish = this.props.fishes[key];
+      // Amount of bought fish
+      const count = this.props.order[key];
+      // Is available
+      const isAvailable = fish && fish.status === 'available';
+      // Tally
+      if (isAvailable) {
+        return prevTotal + (count * fish.price);
+      }
+      // Skip over if unavailabe and keep adding up the additional ones
+      return prevTotal;
+    }, 0);
+
+    return (
+      <div className="order-wrap">
+        <h2>Order</h2>
+        <ul className="order">
+          {orderIds.map(this.renderOrder)}
+        </ul>
+        <div className="total">
+          Total: <strong>{formatPrice(total)}</strong>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Order;
+```
+
+# Persisting our State with Firebase
+
+[Firebase](https://firebase.google.com/):
++ Real-time database provided by Google using web sockets rather than AJAX
++ Updated data gets relayed to everyone who has the store open
++ Going to allow us to mirror our state to Firebase
+
+Firebase realtime database rules for testing
+```json
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+```
+
+### src/base.js
+```js
+// React Firebase specific package
+import Rebase from 're-base';
+// Official Firebase package
+import firebase from 'firebase';
+
+// Configure application
+const firebaseApp = firebase.initializeApp({
+  apiKey: 'AIzaSyAUYpYY65CK7xFHtNljl4k3z-_vHdav1VM',
+  authDomain: 'catch-of-the-day-27c7a.firebaseapp.com',
+  databaseURL: 'https://catch-of-the-day-27c7a.firebaseio.com'
+});
+
+// Create rebase bindings
+const base = Rebase.createClass(firebaseApp.database());
+
+// Named export
+export { firebaseApp };
+
+// Default export
+export default base;
+```
+
+We need to wait until our <App/> component is on the page then we can sync them up
+
+Lifecycle methods
++ They tell us when certain things are happening componentDidMount()
++ Since we're constantly listening to things we need to unlisten else it causes a memory leak componentWillUnmount()
