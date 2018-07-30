@@ -20,11 +20,26 @@ class App extends React.Component {
   componentDidMount() {
     // Firebase reference to a piece of data in the database
     const { params } = this.props.match;
+
+    // Reinstate our localStorage
+    const localStorageRef = localStorage.getItem(params.storeId);
+    // Sometimes we might be visiting a new store that has nothing in it
+    if (localStorageRef) {
+      // Convert our JSON back from a string to an object
+      this.setState({ order: JSON.parse(localStorageRef) });
+    }
+
     this.ref = base.syncState(`${params.storeId}/fishes`, {
       context: this,
       state: 'fishes'
     });
   }
+
+  componentDidUpdate() {
+    // Store name is the key and value orders that need to be a JSON string
+    localStorage.setItem(this.props.match.params.storeId, JSON.stringify(this.state.order));
+  }
+
 
   componentWillUnmount() {
     // When we leave the store we can remove the reference
@@ -40,6 +55,16 @@ class App extends React.Component {
     // 3. Set the new fishes object to state
     this.setState({ fishes });
   };
+
+  // Update fish
+  updateFish = (key, updatedFish) => {
+    // 1. Take a copy of the current state
+    const fishes = { ...this.state.fishes };
+    // 2. Update that state
+    fishes[key] = updatedFish;
+    // 3. Set that to state
+    this.setState({ fishes });
+  }
 
   // Load sample fishes
   loadSampleFishes = () => {
@@ -76,7 +101,9 @@ class App extends React.Component {
         <Order fishes={this.state.fishes} order={this.state.order} />
         <Inventory
           addFish={this.addFish}
+          updateFish={this.updateFish}
           loadSampleFishes={this.loadSampleFishes}
+          fishes={this.state.fishes}
         />
       </div>
     );

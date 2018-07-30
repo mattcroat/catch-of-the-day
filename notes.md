@@ -1109,6 +1109,7 @@ Lifecycle methods
 + They tell us when certain things are happening
 + Since we're constantly listening to things we need to unlisten before a memory leak
 
+### App.js
 ```jsx
 // React core
 import React from 'react';
@@ -1189,6 +1190,282 @@ class App extends React.Component {
         <Inventory
           addFish={this.addFish}
           loadSampleFishes={this.loadSampleFishes}
+        />
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+# Persisting Order State with localStorage
+
+localStorage:
++ Like cookies but easier to work with
++ Perists through a key, value token
++ We need to reinstate it
+
+### App.js
+```jsx
+componentDidMount() {
+  // Firebase reference to a piece of data in the database
+  const { params } = this.props.match;
+
+  // Reinstate our localStorage
+  const localStorageRef = localStorage.getItem(params.storeId);
+  // Sometimes we might be visiting a new store that has nothing in it
+  if (localStorageRef) {
+    // Convert our JSON back from a string to an object
+    this.setState({ order: JSON.parse(localStorageRef) });
+  }
+
+  this.ref = base.syncState(`${params.storeId}/fishes`, {
+    context: this,
+    state: 'fishes'
+  });
+}
+
+componentDidUpdate() {
+  // Store name is the key and value orders that need to be a JSON string
+  localStorage.setItem(this.props.match.params.storeId, JSON.stringify(this.state.order));
+}
+```
+
+Storage is local, immediate compared to our database where the response might be a split second slower. We're trying to render out the order before fish exist. When we load the page, the fish are empty until they can come back from Firebase and be put back into our state. We should first check if it's available and show nothing until it is.
+
+### Order.js
+```jsx
+renderOrder = (key) => {
+  // Grab the fish
+  const fish = this.props.fishes[key];
+  // Amount of bought fish
+  const count = this.props.order[key];
+  // Is available
+  const isAvailable = fish && fish.status === 'available';
+  // Make sure the fish is loaded before we continue
+  if (!fish) return null;
+
+  if (!isAvailable) {
+    // If fish exist output name else say fish
+    return <li key={key}>Sorry {fish ? fish.name : 'fish'} is no longer available</li>;
+  }
+
+  return (
+    <li key={key}>
+      {count} lbs {fish.name} &nbsp;
+      {formatPrice(count * fish.price)}
+    </li>
+  );
+}
+```
+
+# Bi-directional Data Flow and Live State Editing
+
+We have an input where the value is set to our fish name and that in turn is living in state. When something changes on that input we call handleChange(). React will then automatically backspace that change that we did but we can get the value of what the person had hoped to type in event.currentTarget.value and we can take that value and update our fish. We update only the field that got updated by using the input's name and then we send all the changes to our <App/> component because that's where our state lives with the updateFish().
+
+### EditFishForm.js
+```jsx
+// React core
+import React from 'react';
+
+class EditFishForm extends React.Component {
+  handleChange = event => {
+    // Update that fish
+    const updatedFish = {
+      // Take a copy of the current fish and overwrite what changed
+      ...this.props.fish,
+      // Change the fish name in state using ES6 computed properties to figure out what's being changed
+      [event.currentTarget.name]: event.currentTarget.value
+    };
+    // Push it back to state
+    this.props.updateFish(this.props.index, updatedFish);
+  };
+
+  render() {
+    return (
+      <div className="fish-edit">
+        <input
+          type="text"
+          name="name"
+          onChange={this.handleChange}
+          value={this.props.fish.name}
+        />
+        <input
+          type="text"
+          name="price"
+          onChange={this.handleChange}
+          value={this.props.fish.price}
+        />
+        <select
+          type="text"
+          name="status"
+          onChange={this.handleChange}
+          value={this.props.fish.status}
+        >
+          <option value="available">Fresh!</option>
+          <option value="unavailable">Sold out!</option>
+        </select>
+        <textarea
+          name="desc"
+          onChange={this.handleChange}
+          value={this.props.fish.desc}
+        />
+        <input
+          type="text"
+          name="image"
+          onChange={this.handleChange}
+          value={this.props.fish.image}
+        />
+      </div>
+    );
+  }
+}
+
+export default EditFishForm;
+```
+
+### Inventory.js
+```jsx
+// Core react
+import React from 'react';
+// Components
+import AddFishForm from './AddFishForm';
+import EditFishForm from './EditFishForm';
+
+class Inventory extends React.Component {
+  render() {
+    return (
+      <div className="inventory">
+        <h2>Inventory</h2>
+        {Object.keys(this.props.fishes).map(key => (
+          <EditFishForm
+            key={key}
+            index={key}
+            fish={this.props.fishes[key]}
+            updateFish={this.props.updateFish}
+          />
+        ))}
+        <AddFishForm addFish={this.props.addFish} />
+        <button onClick={this.props.loadSampleFishes}>
+          Load Sample Fishes
+        </button>
+      </div>
+    );
+  }
+}
+
+export default Inventory;
+```
+
+### App.js
+```jsx
+// React core
+import React from 'react';
+// Components
+import Header from './Header';
+import Order from './Order';
+import Inventory from './Inventory';
+import Fish from './Fish';
+// Sample fishes
+import sampleFishes from '../sample-fishes';
+// Firebase
+import base from '../base';
+
+class App extends React.Component {
+  // Our state
+  state = {
+    fishes: {},
+    order: {}
+  };
+
+  componentDidMount() {
+    // Firebase reference to a piece of data in the database
+    const { params } = this.props.match;
+
+    // Reinstate our localStorage
+    const localStorageRef = localStorage.getItem(params.storeId);
+    // Sometimes we might be visiting a new store that has nothing in it
+    if (localStorageRef) {
+      // Convert our JSON back from a string to an object
+      this.setState({ order: JSON.parse(localStorageRef) });
+    }
+
+    this.ref = base.syncState(`${params.storeId}/fishes`, {
+      context: this,
+      state: 'fishes'
+    });
+  }
+
+  componentDidUpdate() {
+    // Store name is the key and value orders that need to be a JSON string
+    localStorage.setItem(this.props.match.params.storeId, JSON.stringify(this.state.order));
+  }
+
+
+  componentWillUnmount() {
+    // When we leave the store we can remove the reference
+    base.removeBinding(this.ref);
+  }
+
+  // Add fish
+  addFish = fish => {
+    // 1. Take a copy of existing state
+    const fishes = { ...this.state.fishes };
+    // 2. Add our new fishes to that fishes variable
+    fishes[`fish${Date.now()}`] = fish;
+    // 3. Set the new fishes object to state
+    this.setState({ fishes });
+  };
+
+  // Update fish
+  updateFish = (key, updatedFish) => {
+    // 1. Take a copy of the current state
+    const fishes = { ...this.state.fishes };
+    // 2. Update that state
+    fishes[key] = updatedFish;
+    // 3. Set that to state
+    this.setState({ fishes });
+  }
+
+  // Load sample fishes
+  loadSampleFishes = () => {
+    this.setState({ fishes: sampleFishes });
+  };
+
+  // Add order
+  addToOrder = key => {
+    // 1. Take a copy of state
+    const order = { ...this.state.order };
+    // 2. Either add to the order or update the number in our order
+    order[key] = order[key] + 1 || 1;
+    // 3. Call setState to update our state object
+    this.setState({ order });
+  };
+
+  render() {
+    return (
+      <div className="catch-of-the-day">
+        <div className="menu">
+          <Header tagline="Fresh Seafood Market" />
+          <ul className="fishes">
+            {/* Loop over fishes */}
+            {Object.keys(this.state.fishes).map(key => (
+              <Fish
+                key={key}
+                index={key}
+                details={this.state.fishes[key]}
+                addToOrder={this.addToOrder}
+              />
+            ))}
+          </ul>
+        </div>
+        <Order fishes={this.state.fishes} order={this.state.order} />
+        <Inventory
+          addFish={this.addFish}
+          updateFish={this.updateFish}
+          loadSampleFishes={this.loadSampleFishes}
+          fishes={this.state.fishes}
         />
       </div>
     );

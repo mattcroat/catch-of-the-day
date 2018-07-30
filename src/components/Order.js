@@ -10,7 +10,9 @@ class Order extends React.Component {
     // Amount of bought fish
     const count = this.props.order[key];
     // Is available
-    const isAvailable = fish.status === 'available';
+    const isAvailable = fish && fish.status === 'available';
+    // Make sure the fish is loaded before we continue
+    if (!fish) return null;
 
     if (!isAvailable) {
       // If fish exist output name else say fish
