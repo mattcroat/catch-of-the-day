@@ -1474,3 +1474,234 @@ class App extends React.Component {
 
 export default App;
 ```
+
+# Removing Items from State
+
+Make the method
+
+### App.js
+```jsx
+  // Delete fish
+  deleteFish = key => {
+    // 1. Take a copy of state
+    const fishes = {  ...this.state.fishes };
+    // 2. Update the state, set it to null so Firebase also deletes it
+    fishes[key] = null;
+    // 3. Update state
+    this.setState({ fishes });
+  };
+```
+
+Pass it down
+
+### App.js
+```jsx
+<Inventory
+  addFish={this.addFish}
+  updateFish={this.updateFish}
+  deleteFish={this.deleteFish}
+  loadSampleFishes={this.loadSampleFishes}
+  fishes={this.state.fishes}
+/>
+```
+
+### Inventory.js
+```jsx
+{Object.keys(this.props.fishes).map(key => (
+  <EditFishForm
+    key={key}
+    index={key}
+    fish={this.props.fishes[key]}
+    updateFish={this.props.updateFish}
+    deleteFish={this.props.deleteFish}
+  />
+))}
+</div>
+```
+
+Hook it up to a button
+
+### EditFishForm.js
+```jsx
+<button onClick={() => this.props.deleteFish(this.props.index)}>Remove Fish</button>
+```
+
+Delete from order
+
+### App.js
+```jsx
+// Delete order
+removeFromOrder = key => {
+  // 1. Take a copy of state
+  const order = { ...this.state.order };
+  // 2. Remove that item from order
+  delete order[key];
+  // 3. Update state
+  this.setState({ order });
+};
+
+<Order
+  fishes={this.state.fishes}
+  order={this.state.order}
+  removeFromOrder={this.removeFromOrder}
+/>
+```
+
+### Order.js
+
+```jsx
+return (
+  <li key={key}>
+    {count} lbs {fish.name} &nbsp;
+    {formatPrice(count * fish.price)}
+    <button onClick={() => this.props.removeFromOrder(key)}>&times;</button>
+  </li>
+);
+```
+
+# Animating React Components
+
+Wrap in <TransitionGroup/> the section for animation and <CSSTransition/> the individual element that's being animated.
+
+### Order.js
+```jsx
+// React core
+import React from 'react';
+// Helpers
+import { formatPrice } from '../helpers';
+// Animations
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+
+class Order extends React.Component {
+  renderOrder = key => {
+    // Grab the fish
+    const fish = this.props.fishes[key];
+    // Amount of bought fish
+    const count = this.props.order[key];
+    // Is available
+    const isAvailable = fish && fish.status === 'available';
+    // Make sure the fish is loaded before we continue
+    if (!fish) return null;
+
+    if (!isAvailable) {
+      // If fish exist output name else say fish
+    return (
+      <CSSTransition classNames="order" key={key} timeout={{ enter: 250, exit: 250 }}>
+        <li key={key}>
+          Sorry {fish ? fish.name : 'fish'} is no longer available
+        </li>
+      </CSSTransition>
+      );
+    }
+
+    return (
+      <CSSTransition classNames="order" key={key} timeout={{ enter: 250, exit: 250 }}>
+      <li key={key}>
+        {count} lbs {fish.name} &nbsp;
+        {formatPrice(count * fish.price)}
+        <button onClick={() => this.props.removeFromOrder(key)}>&times;</button>
+      </li>
+      </CSSTransition>
+    );
+  }
+
+  render() {
+    // Array of all the orderIds
+    const orderIds = Object.keys(this.props.order);
+    // Total of how much each of them cost
+    const total = orderIds.reduce((prevTotal, key) => {
+      // Grab the fish
+      const fish = this.props.fishes[key];
+      // Amount of bought fish
+      const count = this.props.order[key];
+      // Is available
+      const isAvailable = fish && fish.status === 'available';
+      // Tally
+      if (isAvailable) {
+        return prevTotal + (count * fish.price);
+      }
+      // Skip over if unavailabe and keep adding up the additional ones
+      return prevTotal;
+    }, 0);
+
+    return (
+      <div className="order-wrap">
+        <h2>Order</h2>
+        <TransitionGroup component="ul" className="order">
+          {orderIds.map(this.renderOrder)}
+        </TransitionGroup>
+        <div className="total">
+          Total: <strong>{formatPrice(total)}</strong>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Order;
+```
+
+### css/_animations.styl
+```stylus
+/*
+  Possible Animations:
+  enter
+  exit
+  appear Must set transitionAppear={true} on animation component
+*/
+
+.order-enter
+  transform: translateX(-120%)
+  transition .5s
+  max-height: 0
+  padding 0 !important
+  &.order-enter-active
+    max-height 60px
+    transform: translateX(0)
+    padding 2rem 0 !important
+
+.order-exit
+  transition .5s
+  transform: translateX(0)
+  &.order-exit-active
+    transform: translateX(120%)
+    padding: 0
+
+.count-enter
+  transition .5s
+  transform translateY(100%)
+  &.count-enter-active
+    transform translateY(0)
+
+.count-exit
+  transform translateY(0)
+  transition .5s
+  position absolute
+  left 0
+  bottom 0
+  &.count-exit-active
+    transform translateY(-100%) scale(3)
+```
+
+### package.json
+```json
+"scripts": {
+  "start": "react-scripts start",
+  "watch": "concurrently --names \"webpack, stylus\" --prefix name \"npm run start\" \"npm run styles:watch\"",
+  "build": "react-scripts build",
+  "eject": "react-scripts eject",
+  "styles": "stylus -u autoprefixer-stylus ./src/css/style.styl -o ./src/css/style.css",
+  "styles:watch": "stylus -u autoprefixer-stylus -w ./src/css/style.styl -o ./src/css/style.css"
+}
+```
+
+Compile our CSS and watch for any changes
+
+```shell
+npm run styles:watch
+``` 
+
+Start and run our server and compile and watch our CSS at the same time
+```shell
+npm run watch
+```
