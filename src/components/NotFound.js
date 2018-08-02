@@ -1,4 +1,3 @@
-// React core
 import React from 'react';
 
 const NotFound = () => (

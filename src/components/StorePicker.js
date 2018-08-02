@@ -1,11 +1,16 @@
-// React core
 import React from 'react';
-// Helpers
+import PropTypes from 'prop-types';
+
 import { getFunName } from '../helpers';
 
 class StorePicker extends React.Component {
   // Input ref property
   myInput = React.createRef();
+
+  // PropTypes
+  static propTypes = {
+    history: PropTypes.object.isRequired
+  };
 
   // This allows us to bind this
   goToStore = event => {

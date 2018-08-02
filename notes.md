@@ -137,10 +137,8 @@ App component:
 
 ### App.js
 ```jsx
-// React core
 import React from 'react';
 
-// Components
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
@@ -181,10 +179,8 @@ Props are the way we get data into a component.
 
 ### App.js
 ```jsx
-// React core
 import React from 'react';
 
-// Components
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
@@ -300,7 +296,6 @@ export default Header;
 
 ### Router.js
 ```jsx
-// React core
 import React from 'react';
 // Router
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
@@ -324,10 +319,9 @@ export default Router;
 
 ### index.js
 ```jsx
-// React core
 import React from 'react';
 import { render } from 'react-dom';
-// Components
+
 import Router from './components/Router';
 import './css/style.css'
 
@@ -340,9 +334,8 @@ render(<Router />, document.querySelector('#main'));
 + src/helpers.js any non React component, useful collection of helper functions
 
 ```jsx
-// React core
 import React from 'react';
-// Helpers
+
 import { getFunName } from '../helpers';
 
 class StorePicker extends React.Component {
@@ -376,9 +369,9 @@ export default StorePicker;
 
 Inline event
 ```jsx
-// React core
+
 import React from 'react';
-// Helpers
+
 import { getFunName } from '../helpers';
 
 class StorePicker extends React.Component {
@@ -410,9 +403,9 @@ export default StorePicker;
 
 Binding this
 ```jsx
-// React core
+
 import React from 'react';
-// Helpers
+
 import { getFunName } from '../helpers';
 
 class StorePicker extends React.Component {
@@ -449,9 +442,9 @@ export default StorePicker;
 # Handling Events
 
 ```jsx
-// React core
+
 import React from 'react';
-// Helpers
+
 import { getFunName } from '../helpers';
 
 class StorePicker extends React.Component {
@@ -508,7 +501,6 @@ Our goal is to pass <AddFishForm/> data to our state that lives in <App/> and up
 
 ### AddFishForm.js
 ```jsx
-// Core react
 import React from 'react';
 
 class AddFishForm extends React.Component {
@@ -570,10 +562,8 @@ We want to make addFish() available to <AddFishForm/> which is two levels lower 
 
 ### App.js
 ```jsx
-// React core
 import React from 'react';
 
-// Components
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
@@ -614,9 +604,8 @@ export default App;
 addFish() doesn't live on <Inventory/>, it's passed down by props. It now has access to the function that lives two levels higher. We need to reference it using the keyword props.
 
 ```jsx
-// Core react
 import React from 'react';
-// Components
+
 import AddFishForm from './AddFishForm';
 
 class Inventory extends React.Component {
@@ -639,9 +628,8 @@ Same as previously, we need to pass down a method using props and update state.
 
 ### App.js
 ```jsx
-// React core
 import React from 'react';
-// Components
+
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
@@ -691,9 +679,8 @@ export default App;
 
 ### Inventory.js
 ```jsx
-// Core react
 import React from 'react';
-// Components
+
 import AddFishForm from './AddFishForm';
 
 class Inventory extends React.Component {
@@ -718,9 +705,9 @@ export default Inventory;
 We're passing values from state as props to <Fish/>. This template is then used by <App/>.
 
 ```jsx
-// React core
+
 import React from 'react';
-// Helpers
+
 import { formatPrice } from '../helpers';
 
 class Fish extends React.Component {
@@ -746,14 +733,13 @@ export default Fish;
 We're looping over the fishes from state using Object.keys() because they're an object. For every entry we're outputing a <Fish/> component with a key and details.
 
 ```jsx
-// React core
 import React from 'react';
-// Components
+
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
 import Fish from './Fish';
-// Sample fishes
+
 import sampleFishes from '../sample-fishes';
 
 class App extends React.Component {
@@ -808,14 +794,13 @@ export default App;
 We pass order via props again that needs a key. If you need access to a key you have to pass it a second time with a prop named other than key. In this case index.
 
 ```jsx
-// React core
 import React from 'react';
-// Components
+
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
 import Fish from './Fish';
-// Sample fishes
+
 import sampleFishes from '../sample-fishes';
 
 class App extends React.Component {
@@ -884,9 +869,8 @@ export default App;
 Then we handle the click where the order gets added to state over props 👍
 
 ```jsx
-// React core
 import React from 'react';
-// Helpers
+
 import { formatPrice } from '../helpers';
 
 class Fish extends React.Component {
@@ -919,14 +903,13 @@ Pass fishes and order props down <Order/>
 
 ### App.js
 ```jsx
-// React core
 import React from 'react';
-// Components
+
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
 import Fish from './Fish';
-// Sample fishes
+
 import sampleFishes from '../sample-fishes';
 
 class App extends React.Component {
@@ -999,9 +982,8 @@ Tally up the total of our actual order and loop over orderIds
 
 ### Order.js
 ```jsx
-// React core
 import React from 'react';
-// Helpers
+
 import { formatPrice } from '../helpers';
 
 class Order extends React.Component {
@@ -1111,14 +1093,13 @@ Lifecycle methods
 
 ### App.js
 ```jsx
-// React core
 import React from 'react';
-// Components
+
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
 import Fish from './Fish';
-// Sample fishes
+
 import sampleFishes from '../sample-fishes';
 // Firebase
 import base from '../base';
@@ -1236,7 +1217,7 @@ Storage is local, immediate compared to our database where the response might be
 
 ### Order.js
 ```jsx
-renderOrder = (key) => {
+renderOrder = key => {
   // Grab the fish
   const fish = this.props.fishes[key];
   // Amount of bought fish
@@ -1266,7 +1247,6 @@ We have an input where the value is set to our fish name and that in turn is liv
 
 ### EditFishForm.js
 ```jsx
-// React core
 import React from 'react';
 
 class EditFishForm extends React.Component {
@@ -1327,9 +1307,8 @@ export default EditFishForm;
 
 ### Inventory.js
 ```jsx
-// Core react
 import React from 'react';
-// Components
+
 import AddFishForm from './AddFishForm';
 import EditFishForm from './EditFishForm';
 
@@ -1360,16 +1339,15 @@ export default Inventory;
 
 ### App.js
 ```jsx
-// React core
 import React from 'react';
-// Components
+
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
 import Fish from './Fish';
-// Sample fishes
+
 import sampleFishes from '../sample-fishes';
-// Firebase
+
 import base from '../base';
 
 class App extends React.Component {
@@ -1565,11 +1543,10 @@ Wrap in <TransitionGroup/> the section for animation and <CSSTransition/> the in
 
 ### Order.js
 ```jsx
-// React core
 import React from 'react';
-// Helpers
+
 import { formatPrice } from '../helpers';
-// Animations
+// Animation
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 class Order extends React.Component {
@@ -1704,4 +1681,370 @@ npm run styles:watch
 Start and run our server and compile and watch our CSS at the same time
 ```shell
 npm run watch
+```
+
+# Component Validation with PropTypes
+
+PropTypes
++ Validate data being passed in to make sure we're passing the right kind of data
++ Used to be built-in React but now needs import
++ Using `Ctrl + F` and searching for this.props to find all the props to pass in is useful
+
+
+For stateless functional component
+
+### Header.js
+```jsx
+import React from 'react';
+// PropTypes
+import PropTypes from 'prop-types';
+
+// Stateless function component
+const Header = props => (
+  <header className="top">
+    <h1>
+      Catch
+      <span className="ofThe">
+        <span className="of">Of</span>
+        <span className="the">The</span>
+      </span>
+      Day
+    </h1>
+    <h3 className="tagline">
+      <span>{props.tagline}</span>
+    </h3>
+  </header>
+);
+
+// PropTypes
+Header.propTypes = {
+  tagline: PropTypes.string.isRequired
+};
+
+export default Header;
+```
+
+For regular React component
+
+### Fish.js
+```jsx
+import React from 'react';
+import PropTypes from 'prop-types';
+
+import { formatPrice } from '../helpers';
+
+class Fish extends React.Component {
+  // PropTypes
+  static propTypes = {
+    details: PropTypes.shape({
+      image: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      desc: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired
+    }),
+    addToOrder: PropTypes.func.isRequired
+  };
+
+  render() {
+    const { image, name, price, desc, status } = this.props.details;
+    const isAvailable = status === 'available';
+
+    return (
+      <li className="menu-fish">
+        <img src={image} alt={name} />
+        <h3 className="fish-name">
+          {name}
+          <span className="price">{formatPrice(price)}</span>
+        </h3>
+        <p>{desc}</p>
+        <button disabled={!isAvailable} onClick={() => this.props.addToOrder(this.props.index)}>
+          {isAvailable ? 'Add To Order' : 'Sold out!'}
+        </button>
+      </li>
+    );
+  }
+}
+
+export default Fish;
+```
+
+# Authentication
+
++ Add authentication method on Firebase
++ Add OAuth app on chosen service
+
+### Login.js
+```jsx
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const Login = props => (
+  <nav className="login">
+    <h2>Inventory Login</h2>
+    <p>Sign in to manage your store's inventory.</p>
+    <button className="github" onClick={() => props.authenticate('Github')}>
+      Log In With GitHub
+    </button>
+    <button className="facebook" onClick={() => props.authenticate('Facebook')}>
+      Log In With Facebook
+    </button>
+    <button className="twitter" onClick={() => props.authenticate('Twitter')}>
+      Log In With Twitter
+    </button>
+  </nav>
+);
+
+Login.propTypes = {
+  authenticate: PropTypes.func.isRequired
+};
+
+export default Login;
+```
+
+Pass down store name
+
+### App.js
+```jsx
+<Inventory
+  addFish={this.addFish}
+  updateFish={this.updateFish}
+  deleteFish={this.deleteFish}
+  loadSampleFishes={this.loadSampleFishes}
+  fishes={this.state.fishes}
+  storeId={this.props.match.params.storeId}
+/>
+```
+
+### Inventory.js
+```jsx
+import React from 'react';
+import PropTypes from 'prop-types';
+
+import base, { firebaseApp } from '../base';
+import firebase from 'firebase';
+
+import AddFishForm from './AddFishForm';
+import EditFishForm from './EditFishForm';
+import Login from './Login';
+
+class Inventory extends React.Component {
+  // PropTypes
+  static propTypes = {
+    fishes: PropTypes.object.isRequired,
+    updateFish: PropTypes.func.isRequired,
+    deleteFish: PropTypes.func.isRequired,
+    loadSampleFishes: PropTypes.func.isRequired
+  };
+
+  // Local state
+  state = {
+    uid: null,
+    owner: null
+  };
+
+  // Check if logged in on refresh
+  componentDidMount() {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        this.authHandler({ user });
+      }
+    });
+  }
+
+  // Auth handler
+  authHandler = async authData => {
+    // Does the person own the store?
+    // 1. Look up the current store in the firebase database
+    const store = await base.fetch(this.props.storeId, { context: this });
+    
+    // 2. Claim it if there is no owner
+    if (!store.owner) {
+      // Save it as our own
+      await base.post(`${this.props.storeId}/owner`, {
+        data: authData.user.uid
+      });
+    }
+    // 3. Set the state of the inventory component to reflect the current user
+    this.setState({
+      uid: authData.user.uid,
+      owner: store.owner || authData.user.id
+    });
+  };
+
+  // Authenticate
+  authenticate = provider => {
+    // Auth request
+    const authProvider = new firebase.auth[`${provider}AuthProvider`]();
+    // Connect to auth portion of our database
+    firebaseApp
+      .auth()
+      .signInWithPopup(authProvider)
+      .then(this.authHandler);
+  };
+
+  logout = async () => {
+    console.log('Logging out!');
+    await firebase.auth().signOut();
+    this.setState({ uid: null });
+  };
+
+  render() {
+    const logout = <button onClick={this.logout}>Log Out!</button>;
+
+    // 1. Chec if they are logged in
+    if (!this.state.uid) {
+      return <Login authenticate={this.authenticate} />;
+    }
+
+    // 2. Check if they are not the owner of the store
+    if (this.state.uid !== this.state.owner) {
+      return (
+        <div>
+          <p>Sorry you are not the owner!</p>
+          {logout}
+        </div>
+      );
+    }
+
+    // 3. They must be the owner, just render the inventory
+    return (
+      <div className="inventory">
+        <h2>Inventory</h2>
+        {logout}
+        {Object.keys(this.props.fishes).map(key => (
+          <EditFishForm
+            key={key}
+            index={key}
+            fish={this.props.fishes[key]}
+            updateFish={this.props.updateFish}
+            deleteFish={this.props.deleteFish}
+          />
+        ))}
+        <AddFishForm addFish={this.props.addFish} />
+        <button onClick={this.props.loadSampleFishes}>
+          Load Sample Fishes
+        </button>
+      </div>
+    );
+  }
+}
+
+export default Inventory;
+```
+
+Locking Firebase down with some rules
+
+```json
+// These are your firebase security rules - put them in the "Security & Rules" tab of your database
+{
+  "rules": {
+    // won't let people delete an existing room
+    ".write": "!data.exists()",
+    ".read": true,
+    "$room": {
+      // only the store owner can edit the data
+      ".write":
+        "auth != null && (!data.exists() || data.child('owner').val() === auth.uid)",
+      ".read": true
+    }
+  }
+}
+```
+
+# Building React for Production
+
+Building the React app
+
+### package.json
+```json
+"scripts": {
+  "start": "react-scripts start",
+  "watch": "concurrently --names \"webpack, stylus\" --prefix name \"npm run start\" \"npm run styles:watch\"",
+  "build": "react-scripts build",
+  "eject": "react-scripts eject",
+  "styles": "stylus -u autoprefixer-stylus ./src/css/style.styl -o ./src/css/style.css",
+  "styles:watch": "stylus -u autoprefixer-stylus -w ./src/css/style.styl -o ./src/css/style.css"
+}
+```
+
+```shell
+npm run build
+```
+
+## Deploying to Now
+
+```shell
+npm i -g now
+
+npm i serve
+```
+
+Modify package.json for production
+
+```json
+"scripts": {
+  "dev": "react-scripts start",
+  "start": "serve --single ./build",
+  "watch": "concurrently --names \"webpack, stylus\" --prefix name \"npm run start\" \"npm run styles:watch\"",
+  "build": "react-scripts build",
+  "eject": "react-scripts eject",
+  "styles": "stylus -u autoprefixer-stylus ./src/css/style.styl -o ./src/css/style.css",
+  "styles:watch": "stylus -u autoprefixer-stylus -w ./src/css/style.styl -o ./src/css/style.css"
+}
+```
+
+Run now
+
+```shell
+now
+```
+
+It returns a unique url for every deploy but you can [alias](https://zeit.co/docs/features/configuration) it.
+
+## Deploying to Netlify
+
+```shell
+npm i -g netlify-cli
+
+netlify deploy
+
+cd build
+
+touch _redirects
+```
+
+History pushstate and single page apps
+
+```text
+/* /index.html 200
+```
+
+Save and deploy again.
+
+## Deploying to an Apache Server
+
++ Drag and drop the contents of build folder into a FTP client
++ Add domain on Firebase under Authentication > Sign-in Method and add your site url
++ Create a .htaccess file in the root of the site
+
+### .htaccess
+```apache
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+```
+
+# Ejecting from create-react-app
+
++ Create-react-app takes all the config and boiler plate and puts it behind it's own package react-scripts
++ Eject is a one way of customizing it, you can't un-eject
++ Do it on a branch so you can roll it back
+
+```shell
+git checkout -b "ejected"
+
+npm run eject
 ```

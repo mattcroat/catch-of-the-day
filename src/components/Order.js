@@ -1,11 +1,18 @@
-// React core
 import React from 'react';
-// Helpers
+import PropTypes from 'prop-types';
+
 import { formatPrice } from '../helpers';
-// Animations
+
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 class Order extends React.Component {
+  // PropTypes
+  static propTypes = {
+    fishes: PropTypes.object.isRequired,
+    order: PropTypes.object.isRequired,
+    removeFromOrder: PropTypes.func.isRequired
+  };
+
   renderOrder = key => {
     // Grab the fish
     const fish = this.props.fishes[key];

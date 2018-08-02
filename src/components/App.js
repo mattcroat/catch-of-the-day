@@ -1,13 +1,13 @@
-// React core
 import React from 'react';
-// Components
+import PropTypes from 'prop-types';
+
 import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
 import Fish from './Fish';
-// Sample fishes
+
 import sampleFishes from '../sample-fishes';
-// Firebase
+
 import base from '../base';
 
 class App extends React.Component {
@@ -15,6 +15,11 @@ class App extends React.Component {
   state = {
     fishes: {},
     order: {}
+  };
+
+  // PropTypes
+  static propTypes = {
+    match: PropTypes.object.isRequired
   };
 
   componentDidMount() {
@@ -131,6 +136,7 @@ class App extends React.Component {
           deleteFish={this.deleteFish}
           loadSampleFishes={this.loadSampleFishes}
           fishes={this.state.fishes}
+          storeId={this.props.match.params.storeId}
         />
       </div>
     );

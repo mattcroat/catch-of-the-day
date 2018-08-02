@@ -1,6 +1,4 @@
-// React Firebase specific package
 import Rebase from 're-base';
-// Official Firebase package
 import firebase from 'firebase';
 
 // Configure application

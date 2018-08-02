@@ -1,8 +1,6 @@
-// React core
 import React from 'react';
-// Router
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-// Components
+
 import StorePicker from './StorePicker';
 import App from './App';
 import NotFound from './NotFound';
